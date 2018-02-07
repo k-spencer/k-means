@@ -1,0 +1,143 @@
+/*This is a program that runs a simple K-Means clustering algorithm*/
+#include <iostream>
+#include <cstdlib>
+#include <algorithm>
+#include <cmath>
+
+using namespace std;
+
+class Point{
+
+public:
+    Point()
+    {
+
+    }
+
+    Point(float a, float b)
+    {
+	x = a;
+	y = b;
+    }
+   int x, y;
+};
+
+
+float sim(Point center[], Point d){
+	float dist[3];
+	float minDist, index, subx, suby;
+	for(int i = 0; i < 3; i++)
+	{
+		subx = center[i].x - d.x;
+		suby = center[i].y - d.y;
+		dist[i] = sqrt((pow(subx,2) + pow(suby,2)));
+	}
+
+	minDist = dist[0];
+	index = 0;
+	for(int i = 0; i < 3; i++)
+	{
+	    if(dist[i] < minDist)
+	    {
+		index = i;
+		minDist = dist[i];
+	    }
+        }
+
+	return index;
+}
+
+
+
+int main(){
+
+	Point points[8];
+	Point nc[3];
+	Point centers[3];
+	Point temp[3];
+	float associate[8];
+	//load centers here
+	centers[0] = Point(0,0);
+	centers[1] = Point(13,8);
+	centers[2] = Point(4,15);
+
+
+	//load points here
+	points[0] = Point(2,10); //a1
+	points[1] = Point(2,5); //a2
+	points[2] = Point(8,4); //a3
+	points[3] = Point(5,8); //a4
+	points[4] = Point(7,5); //a5
+	points[5] = Point(6,4); //a6
+        points[6] = Point(1,2); //a7
+	points[7] = Point(4,9); //a8
+	for(int i = 0; i < 8; i++)
+	    associate[i] = sim(centers, points[i]);
+
+do{
+    float meanX[] = {0,0,0};
+    float meanY[] = {0,0,0};
+    float counter[] = {0,0,0};
+    bool flag[] = {false, false, false};
+
+	for(int i = 0; i < 3; i++)
+	{
+	  flag[i] = false;
+	  for(int j = 0; j < 8; j++)
+	  {
+	    if(associate[j] == i)
+	    {
+ 	      meanX[i] = points[j].x + meanX[i];
+	      meanY[i] = points[j].y + meanY[i];
+	      counter[i] = counter[i] + 1;
+	      flag[i] = true;
+	    }
+          }
+
+	 if(flag[i])
+	 {
+	    meanX[i] = meanX[i]/counter[i];
+	    meanY[i] = meanY[i]/counter[i];
+	    nc[i].x = meanX[i];
+	    nc[i].y = meanY[i];
+         }
+
+	if(!flag[i])
+	{
+	   nc[i].x = centers[i].x;
+	   nc[i].y = centers[i].y;
+	}
+       }
+
+    for(int i = 0; i < 3; i++)
+    {
+       temp[i].x = centers[i].x;
+       temp[i].y = centers[i].y;
+    }
+
+    for(int i = 0; i < 3; i++)
+    {
+       centers[i].x = nc[i].x;
+       centers[i].y = nc[i].y;
+    }
+
+    for(int i = 0; i < 3; i++)
+    {
+       nc[i].x = temp[i].x;
+       nc[i].y = temp[i].y;
+    }
+
+
+for(int i = 0; i < 8; i++)
+	associate[i] = sim(centers, points[i]);
+
+
+}while(nc[0].x != centers[0].x && nc[0].y != centers[0].y && nc[1].x != centers[1].x && nc[1].y != centers[1].y,
+	nc[2].x != centers[2].x && nc[2].y != centers[2].y);
+
+
+for(int i = 0; i < 8; i++)
+	cout << "point a" << i+1 << " is in cluster " << associate[i] + 1 << endl;
+
+
+}
